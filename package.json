@@ -1,0 +1,23 @@
+{
+  "name": "household-portal",
+  "version": "1.0.0",
+  "description": "Quản lý hộ khẩu, nhân khẩu và đóng góp với front-end HTML/CSS/JS và backend Node.js + MySQL.",
+  "main": "server/index.js",
+  "scripts": {
+    "dev": "nodemon server/index.js",
+    "start": "node server/index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.19.2",
+    "mysql2": "^3.11.3",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7"
+  }
+}
+
+
+

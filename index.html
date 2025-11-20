@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hệ thống quản lý hộ khẩu</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="brand">
+            <h1>HK Portal</h1>
+            <p>Quản lý hộ khẩu</p>
+        </div>
+        <nav>
+            <button class="nav-link active" data-view="home">Trang chủ</button>
+            <button class="nav-link" data-view="login">Đăng nhập</button>
+            <button class="nav-link" data-view="households">Quản lý hộ khẩu</button>
+            <button class="nav-link" data-view="residents">Quản lý cư dân</button>
+            <button class="nav-link" data-view="contributions">Thu/đóng góp</button>
+            <button class="nav-link" data-view="search">Tìm kiếm</button>
+            <button class="nav-link" data-view="settings">Cài đặt</button>
+        </nav>
+        <button id="logout-btn" class="logout hidden">Đăng xuất</button>
+    </aside>
+
+    <div class="content">
+        <header class="page-header">
+            <div>
+                <h2 id="view-title">Trang chủ</h2>
+                <p id="view-desc">Tổng quan hệ thống quản lý hộ khẩu</p>
+            </div>
+            <span id="user-indicator" class="badge">Khách</span>
+        </header>
+
+        <main>
+            <section id="home-view" class="view active">
+                <div class="info-grid">
+                    <article class="info-card">
+                        <h3>Tình trạng</h3>
+                        <p>Quản lý hộ khẩu, cư dân và đóng góp trên một giao diện thống nhất.</p>
+                        <ul>
+                            <li>Quản lý danh sách hộ khẩu</li>
+                            <li>Quản lý nhân khẩu liên quan</li>
+                            <li>Ghi nhận khoản đóng góp</li>
+                            <li>Tìm kiếm & cài đặt cấu hình</li>
+                        </ul>
+                    </article>
+                    <article class="info-card highlight">
+                        <h3>Kết nối máy chủ</h3>
+                        <p>Front-end sẽ giao tiếp với API Node.js & MySQL (khởi chạy riêng).</p>
+                        <p class="note">Tập tin này mô tả UI, logic fetch sẽ nằm trong <code>script.js</code>.</p>
+                    </article>
+                </div>
+            </section>
+
+            <section id="login-view" class="view">
+                <form id="login-form" class="card form">
+                    <h3>Đăng nhập</h3>
+                    <label>
+                        Tên đăng nhập
+                        <input type="text" name="username" required />
+                    </label>
+                    <label>
+                        Mật khẩu
+                        <input type="password" name="password" required />
+                    </label>
+                    <p class="subtle">Demo: <code>admin / 123456</code></p>
+                    <button type="submit">Đăng nhập</button>
+                </form>
+            </section>
+
+            <section id="households-view" class="view">
+                <div class="card">
+                    <header class="card-header">
+                        <div>
+                            <h3>Quản lý hộ khẩu</h3>
+                            <p>Thêm/sửa/xóa thông tin hộ khẩu</p>
+                        </div>
+                        <button id="refresh-households" type="button">Tải lại</button>
+                    </header>
+                    <form id="household-form" class="form inline">
+                        <input type="hidden" name="id" />
+                        <label>
+                            Mã hộ
+                            <input type="text" name="code" required />
+                        </label>
+                        <label>
+                            Chủ hộ
+                            <input type="text" name="owner" required />
+                        </label>
+                        <label class="grow">
+                            Địa chỉ
+                            <input type="text" name="address" required />
+                        </label>
+                        <button type="submit">Lưu</button>
+                        <button type="button" id="reset-household-form">Làm mới</button>
+                    </form>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Mã hộ</th>
+                                    <th>Chủ hộ</th>
+                                    <th>Địa chỉ</th>
+                                    <th>Số cư dân</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="household-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="residents-view" class="view">
+                <div class="card">
+                    <header class="card-header">
+                        <div>
+                            <h3>Quản lý cư dân</h3>
+                            <p>Liên kết cư dân với hộ khẩu</p>
+                        </div>
+                        <button id="refresh-residents" type="button">Tải lại</button>
+                    </header>
+                    <form id="resident-form" class="form inline">
+                        <input type="hidden" name="id" />
+                        <label>
+                            Thuộc mã hộ
+                            <select name="householdId" required></select>
+                        </label>
+                        <label>
+                            Họ tên
+                            <input type="text" name="name" required />
+                        </label>
+                        <label>
+                            Năm sinh
+                            <input type="number" name="birthYear" min="1900" max="2099" required />
+                        </label>
+                        <label>
+                            Quan hệ
+                            <input type="text" name="relation" required />
+                        </label>
+                        <button type="submit">Lưu</button>
+                        <button type="button" id="reset-resident-form">Làm mới</button>
+                    </form>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Hộ</th>
+                                    <th>Họ tên</th>
+                                    <th>Năm sinh</th>
+                                    <th>Quan hệ</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="resident-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="contributions-view" class="view">
+                <div class="card">
+                    <header class="card-header">
+                        <div>
+                            <h3>Thu phí / đóng góp</h3>
+                            <p>Ghi nhận các khoản theo hộ khẩu</p>
+                        </div>
+                        <button id="refresh-contributions" type="button">Tải lại</button>
+                    </header>
+                    <form id="contribution-form" class="form inline">
+                        <input type="hidden" name="id" />
+                        <label>
+                            Thuộc mã hộ
+                            <select name="householdId" required></select>
+                        </label>
+                        <label class="grow">
+                            Khoản đóng góp
+                            <input type="text" name="description" required />
+                        </label>
+                        <label>
+                            Số tiền (VNĐ)
+                            <input type="number" name="amount" min="0" step="1000" required />
+                        </label>
+                        <button type="submit">Lưu</button>
+                        <button type="button" id="reset-contribution-form">Làm mới</button>
+                    </form>
+                    <div class="totals" id="contribution-totals"></div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Hộ</th>
+                                    <th>Khoản</th>
+                                    <th>Số tiền</th>
+                                    <th>Ngày</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="contribution-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="search-view" class="view">
+                <div class="card">
+                    <h3>Tìm kiếm</h3>
+                    <form id="search-form" class="form inline">
+                        <label class="grow">
+                            Từ khóa
+                            <input type="text" name="keyword" placeholder="Họ tên, mã hộ, địa chỉ..." required />
+                        </label>
+                        <label>
+                            Phạm vi
+                            <select name="scope">
+                                <option value="all">Tất cả</option>
+                                <option value="households">Hộ khẩu</option>
+                                <option value="residents">Cư dân</option>
+                                <option value="contributions">Đóng góp</option>
+                            </select>
+                        </label>
+                        <button type="submit">Tìm</button>
+                        <button type="button" id="clear-search">Xóa</button>
+                    </form>
+                    <div class="search-results" id="search-results"></div>
+                </div>
+            </section>
+
+            <section id="settings-view" class="view">
+                <div class="card">
+                    <h3>Cài đặt</h3>
+                    <form id="settings-form" class="form">
+                        <label>
+                            Tên tổ chức
+                            <input type="text" name="organization" placeholder="UBND Phường..." />
+                        </label>
+                        <label>
+                            Email liên hệ
+                            <input type="email" name="contactEmail" />
+                        </label>
+                        <label>
+                            Thông báo hệ thống
+                            <textarea name="announcement" rows="4" placeholder="Thông báo gửi tới cư dân..."></textarea>
+                        </label>
+                        <button type="submit">Lưu cài đặt</button>
+                    </form>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <template id="row-empty">
+        <tr>
+            <td colspan="5" class="empty">Chưa có dữ liệu</td>
+        </tr>
+    </template>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
