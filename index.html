@@ -71,31 +71,42 @@
             </section>
 
             <section id="households-view" class="view">
+                <!-- Panel 1: Thêm/Sửa hộ khẩu -->
                 <div class="card">
                     <header class="card-header">
                         <div>
-                            <h3>Quản lý hộ khẩu</h3>
-                            <p>Thêm/sửa/xóa thông tin hộ khẩu</p>
+                            <h3 id="household-form-title">Thêm hộ khẩu mới</h3>
+                            <p id="household-form-desc">Nhập thông tin để thêm hộ khẩu mới vào hệ thống</p>
                         </div>
-                        <button id="refresh-households" type="button">Tải lại</button>
                     </header>
                     <form id="household-form" class="form inline">
                         <input type="hidden" name="id" />
                         <label>
                             Mã hộ
-                            <input type="text" name="code" required />
+                            <input type="text" name="code" id="household-code-input" required placeholder="VD: HK001" />
                         </label>
                         <label>
                             Chủ hộ
-                            <input type="text" name="owner" required />
+                            <input type="text" name="owner" required placeholder="Họ và tên chủ hộ" />
                         </label>
                         <label class="grow">
                             Địa chỉ
-                            <input type="text" name="address" required />
+                            <input type="text" name="address" required placeholder="Địa chỉ hộ khẩu" />
                         </label>
-                        <button type="submit">Lưu</button>
+                        <button type="submit" id="household-submit-btn">Thêm hộ khẩu</button>
                         <button type="button" id="reset-household-form">Làm mới</button>
                     </form>
+                </div>
+
+                <!-- Panel 2: Danh sách hộ khẩu -->
+                <div class="card">
+                    <header class="card-header">
+                        <div>
+                            <h3>Danh sách hộ khẩu</h3>
+                            <p>Xem và quản lý danh sách hộ khẩu</p>
+                        </div>
+                        <button id="refresh-households" type="button">Tải lại</button>
+                    </header>
                     <div class="table-wrapper">
                         <table>
                             <thead>
@@ -104,7 +115,7 @@
                                     <th>Chủ hộ</th>
                                     <th>Địa chỉ</th>
                                     <th>Số cư dân</th>
-                                    <th></th>
+                                    <th>Thao tác</th>
                                 </tr>
                             </thead>
                             <tbody id="household-table-body"></tbody>

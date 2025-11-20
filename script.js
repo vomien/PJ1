@@ -30,8 +30,12 @@ const userIndicator = document.querySelector("#user-indicator");
 const logoutBtn = document.querySelector("#logout-btn");
 
 const householdForm = document.querySelector("#household-form");
-const householdIdField = householdForm?.querySelector('input[name="id"]');
 const householdTableBody = document.querySelector("#household-table-body");
+const householdIdField = householdForm?.querySelector('input[name="id"]');
+const householdCodeInput = document.querySelector("#household-code-input");
+const householdFormTitle = document.querySelector("#household-form-title");
+const householdFormDesc = document.querySelector("#household-form-desc");
+const householdSubmitBtn = document.querySelector("#household-submit-btn");
 
 const residentForm = document.querySelector("#resident-form");
 const residentIdField = residentForm?.querySelector('input[name="id"]');
@@ -60,7 +64,9 @@ function init() {
 
     householdForm?.addEventListener("submit", handleHouseholdSubmit);
     document.querySelector("#refresh-households")?.addEventListener("click", loadHouseholds);
-    document.querySelector("#reset-household-form")?.addEventListener("click", () => householdForm.reset());
+    document.querySelector("#reset-household-form")?.addEventListener("click", () => {
+        resetHouseholdForm();
+    });
 
     residentForm?.addEventListener("submit", handleResidentSubmit);
     document.querySelector("#refresh-residents")?.addEventListener("click", loadResidents);
@@ -100,7 +106,10 @@ function switchView(targetView) {
     viewDesc.textContent = meta.desc;
 
     if (protectedViews.has(targetView)) {
-        if (targetView === "households") loadHouseholds();
+        if (targetView === "households") {
+            resetHouseholdForm();
+            loadHouseholds();
+        }
         if (targetView === "residents") {
             loadHouseholds();
             loadResidents();
@@ -206,9 +215,27 @@ function renderHouseholds() {
 
 function fillHouseholdForm(household) {
     householdIdField.value = household.id;
-    householdForm.code.value = household.code;
+    householdCodeInput.value = household.code;
+    householdCodeInput.readOnly = true;
     householdForm.owner.value = household.owner;
     householdForm.address.value = household.address;
+    
+    // Cập nhật UI
+    householdFormTitle.textContent = "Sửa hộ khẩu";
+    householdFormDesc.textContent = "Chỉnh sửa thông tin hộ khẩu (mã hộ không thể thay đổi)";
+    householdSubmitBtn.textContent = "Cập nhật";
+    
+    // Scroll đến form
+    householdForm.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function resetHouseholdForm() {
+    householdForm.reset();
+    householdIdField.value = "";
+    householdCodeInput.readOnly = false;
+    householdFormTitle.textContent = "Thêm hộ khẩu mới";
+    householdFormDesc.textContent = "Nhập thông tin để thêm hộ khẩu mới vào hệ thống";
+    householdSubmitBtn.textContent = "Thêm hộ khẩu";
 }
 
 async function handleHouseholdSubmit(event) {
@@ -222,17 +249,36 @@ async function handleHouseholdSubmit(event) {
     if (!payload.code || !payload.owner || !payload.address) {
         return alert("Vui lòng nhập đủ thông tin hộ khẩu.");
     }
+    
     const id = formData.get("id");
+    
+    // Kiểm tra mã hộ trùng khi thêm mới
+    if (!id) {
+        const existingHousehold = state.households.find(h => h.code.toLowerCase() === payload.code.toLowerCase());
+        if (existingHousehold) {
+            return alert(`Mã hộ "${payload.code}" đã tồn tại. Vui lòng sử dụng mã hộ khác.`);
+        }
+    }
+    
     try {
         if (id) {
+            // Cập nhật hộ khẩu
             await apiFetch(`/households/${id}`, { method: "PUT", body: JSON.stringify(payload) });
+            alert("Cập nhật hộ khẩu thành công!");
         } else {
+            // Thêm hộ khẩu mới
             await apiFetch("/households", { method: "POST", body: JSON.stringify(payload) });
+            alert("Thêm hộ khẩu thành công!");
         }
-        householdForm.reset();
+        resetHouseholdForm();
         loadHouseholds();
     } catch (error) {
-        alert(error.message);
+        // Kiểm tra lỗi từ server về mã hộ trùng
+        if (error.message.includes("duplicate") || error.message.includes("trùng") || error.message.includes("đã tồn tại")) {
+            alert(`Mã hộ "${payload.code}" đã tồn tại. Vui lòng sử dụng mã hộ khác.`);
+        } else {
+            alert(error.message);
+        }
     }
 }
 
